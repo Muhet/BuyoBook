@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { commerce } from './lib/commerce';
-import { Products, Navbar, Cart, Checkout, Blog } from './components';
+import { Products, Navbar, Cart, Checkout } from './components';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 const App = () => {
   const [products, setProducts] = useState([]);
  const [cart, setCart] = useState({});
  const { order, setOrder } = useState({});
- const { errorMessage, seterrorMessage } = useState('');
+ const { errorMessage, setErrorMessage } = useState('');
     
     const fetchProducts = async () => {
       const { data } = await commerce.products.list();
@@ -40,13 +40,14 @@ const App = () => {
         const newCart = await commerce.cart.refresh();
         setCart(newCart);
       }
+
     const handleCapttureCheckout = async (checkoutTokenId, newOrder) =>{
           try {
-              const incommingOrder = await commerce.checkout.capture(checkoutTokenId, newOrder)
-              setOrder(incommingOrder);
+              const incomingOrder = await commerce.checkout.capture(checkoutTokenId, newOrder)
+              setOrder(incomingOrder);
               refleshCart();
           } catch (error) {
-              seterrorMessage(error.data.error.message)
+              setErrorMessage(error.data.error.message);
           }
 
     }
@@ -57,6 +58,7 @@ const App = () => {
    
     }, []);
    
+   
   return (
     
     <Router> 
@@ -65,7 +67,6 @@ const App = () => {
        
       <Routes>
         <Route path="/" exact element={<Products products={products} onAddToCart = {handleAddCart} />} />
-        <Route path="/Blog" exact element={<Blog />} />
         <Route path="/cart" exact element={<Cart 
         cart={cart}
         handleUpdateCartQty={handleUpdateCartQty }
